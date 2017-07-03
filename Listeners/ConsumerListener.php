@@ -17,7 +17,6 @@ class ConsumerListener
      * @var Registry
      */
     protected $registry;
-
     /**
      * ConsumerListener constructor.
      *
@@ -27,12 +26,13 @@ class ConsumerListener
     {
         $this->registry = $registry;
     }
-
     /**
      * @param RSQueueConsumerEvent $event
      */
     public function checkRSQConsumerEvent(RSQueueConsumerEvent $event)
     {
-        $this->registry->getManager()->clear();
+        if (!is_null($this->registry)){
+            $this->registry->getManager()->clear();
+        }
     }
 }
