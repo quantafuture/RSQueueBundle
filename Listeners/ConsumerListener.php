@@ -1,13 +1,8 @@
 <?php
-
 namespace Mmoreram\RSQueueBundle\Listeners;
-
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Mmoreram\RSQueueBundle\Event\RSQueueConsumerEvent;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Symfony\Bridge\Doctrine\RegistryInterface;
-
-
 /**
  * Class ConsumerListener
  *
@@ -19,7 +14,6 @@ class ConsumerListener
      * @var Registry
      */
     protected $registry;
-
     /**
      * ConsumerListener constructor.
      *
@@ -29,12 +23,13 @@ class ConsumerListener
     {
         $this->registry = $registry;
     }
-
     /**
      * @param RSQueueConsumerEvent $event
      */
     public function checkRSQConsumerEvent(RSQueueConsumerEvent $event)
     {
-        $this->registry->getManager()->clear();
+        if (!is_null($this->registry)){
+            $this->registry->getManager()->clear();
+        }
     }
 }
