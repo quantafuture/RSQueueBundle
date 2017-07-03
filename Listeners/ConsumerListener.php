@@ -1,8 +1,11 @@
 <?php
+
 namespace Mmoreram\RSQueueBundle\Listeners;
+
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Mmoreram\RSQueueBundle\Event\RSQueueConsumerEvent;
 use Doctrine\Common\Persistence\ManagerRegistry;
+
 /**
  * Class ConsumerListener
  *
