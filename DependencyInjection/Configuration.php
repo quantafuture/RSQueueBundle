@@ -55,7 +55,7 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
-                ->scalarNode('namespace')
+                ->scalarNode('consumer_stop_key')
                     ->isRequired()
                     ->cannotBeEmpty()
                 ->end()

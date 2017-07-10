@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package Mmoreram\RSQueueBundle\Command
  */
-class AddRestartFlagCommand extends AbstractExtendedCommand
+class RestartConsumersCommand extends AbstractExtendedCommand
 {
     const RSQUEUE_WORKERS_RESTART_TIMESTAMP_PREFIX = 'rsqueue_workers_restart_timestamp_';
 
@@ -51,7 +51,7 @@ class AddRestartFlagCommand extends AbstractExtendedCommand
     protected function configure()
     {
         $this
-            ->setName('rsqueue:add_restart_flag')
+            ->setName('rsqueue:restart-consumers')
             ->setDescription('Add flag with timestamp for restart workers to redis.');
 
         parent::configure();

@@ -147,8 +147,8 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
         $lockHandler = $this->getContainer()->get('rs_queue.lock_handler');
         /** @var \Redis $redis */
         $redis = $this->getContainer()->get('rs_queue.redis');
-        /** @var string $namespace */
-        $namespace = $this->getContainer()->getParameter('rs_queue.namespace');
+        /** @var string $consumerStopKey */
+        $consumerStopKey = $this->getContainer()->getParameter('rs_queue.consumer_stop_key');
 
         $lockFile = $input->getOption('lockFile');
         $iterations = (int) $input->getOption('iterations');
@@ -172,7 +172,7 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
 
         try {
             while (true) {
-                $restartTime = $redis->get(AddRestartFlagCommand::RSQUEUE_WORKERS_RESTART_TIMESTAMP_PREFIX . $namespace);
+                $restartTime = $redis->get(RestartConsumersCommand::RSQUEUE_WORKERS_RESTART_TIMESTAMP_PREFIX . $consumerStopKey);
                 if ($restartTime !== false && $now < $restartTime) {
                     $this->stopExecute();
                 }
