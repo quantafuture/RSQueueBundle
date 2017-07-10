@@ -38,6 +38,11 @@ class RSQueueExtension extends Extension
             $config['server']['redis']
         );
 
+        $container->setParameter(
+            'rs_queue.consumer_stop_key',
+            $config['consumer_stop_key']
+        );
+
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
