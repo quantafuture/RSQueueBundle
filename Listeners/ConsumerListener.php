@@ -21,9 +21,9 @@ class ConsumerListener
     /**
      * ConsumerListener constructor.
      *
-     * @param $registry
+     * @param ManagerRegistry|null $registry
      */
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry = null)
     {
         $this->registry = $registry;
     }
@@ -33,7 +33,7 @@ class ConsumerListener
      */
     public function checkRSQConsumerEvent(RSQueueConsumerEvent $event)
     {
-        if (!is_null($this->registry)) {
+        if ($this->registry instanceof ManagerRegistry) {
             $allManagers = $this->registry->getManagers();
             foreach ($allManagers as $manager) {
                 $manager->clear();
