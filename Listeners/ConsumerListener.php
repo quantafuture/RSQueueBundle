@@ -23,7 +23,7 @@ class ConsumerListener
      *
      * @param ManagerRegistry|null $registry
      */
-    public function __construct($registry)
+    public function __construct(ManagerRegistry $registry = null)
     {
         $this->registry = $registry;
     }
