@@ -1,51 +1,52 @@
 {
-    "name": "mmoreram/rsqueue-bundle",
-    "type": "symfony-bundle",
-    "description": "Redis Symfony2 Queue Bundle, a simple and soft redis based message queue for symfony2",
-    "keywords": [
-        "rsqueue",
-        "redis",
-        "queue",
-        "symfony"
-    ],
-    "homepage": "http://rsqueue.com",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Marc Morera",
-            "email": "yuhu@mmoreram.com"
-        }
-    ],
-    "require": {
-        "php": ">=5.3.3",
-        "symfony/event-dispatcher": "~2.3|~3.0",
-        "symfony/framework-bundle": "~2.3|~3.0",
-        "doctrine/orm": "^2.4.8",
-        "doctrine/doctrine-bundle": "~1.4",
-        "doctrine/annotations": "^1.1.2",
-        "symfony/console": "~2.3|~3.0",
-        "symfony/process": "~2.3|~3.0",
-        "symfony/config": "~2.3|~3.0",
-        "symfony/http-kernel": "~2.3|~3.0",
-        "symfony/dependency-injection": "~2.3|~3.0"
+  "name": "mmoreram/rsqueue-bundle",
+  "type": "symfony-bundle",
+  "description": "Redis Symfony2 Queue Bundle, a simple and soft redis based message queue for symfony2",
+  "keywords": [
+    "rsqueue",
+    "redis",
+    "queue",
+    "symfony"
+  ],
+  "homepage": "http://rsqueue.com",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Marc Morera",
+      "email": "yuhu@mmoreram.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.3",
+    "symfony/event-dispatcher": "~2.3|~3.0",
+    "symfony/framework-bundle": "~2.3|~3.0",
+    "doctrine/orm": "^2.4.8",
+    "doctrine/doctrine-bundle": "~1.4",
+    "doctrine/annotations": "^1.1.2",
+    "symfony/console": "~2.3|~3.0",
+    "symfony/process": "~2.3|~3.0",
+    "symfony/config": "~2.3|~3.0",
+    "symfony/http-kernel": "~2.3|~3.0",
+    "symfony/dependency-injection": "~2.3|~3.0"
+  },
+  "require-dev": {
+    "symfony/phpunit-bridge": "~2.7"
+  },
+  "autoload": {
+    "psr-4": {
+      "Mmoreram\\RSQueueBundle\\": ""
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0-dev"
     },
-    "require-dev": {
-        "symfony/phpunit-bridge": "~2.7"
-    },
-    "autoload": {
-        "psr-4": {
-            "Mmoreram\\RSQueueBundle\\": ""
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0-dev"
-        }
-    },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://satis.lancaster-solutions.com"
-        }
-    ]
+    "satis": true
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://satis.lancaster-solutions.com"
+    }
+  ]
 }
