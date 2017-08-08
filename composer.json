@@ -2,8 +2,13 @@
     "name": "mmoreram/rsqueue-bundle",
     "type": "symfony-bundle",
     "description": "Redis Symfony2 Queue Bundle, a simple and soft redis based message queue for symfony2",
-    "keywords": ["rsqueue", "redis", "queue", "symfony"],
-    "homepage":  "http://rsqueue.com",
+    "keywords": [
+        "rsqueue",
+        "redis",
+        "queue",
+        "symfony"
+    ],
+    "homepage": "http://rsqueue.com",
     "license": "MIT",
     "authors": [
         {
@@ -28,12 +33,20 @@
         "symfony/phpunit-bridge": "~2.7"
     },
     "autoload": {
-        "psr-4": { "Mmoreram\\RSQueueBundle\\": "" }
+        "psr-4": {
+            "Mmoreram\\RSQueueBundle\\": ""
+        }
     },
     "extra": {
         "branch-alias": {
             "dev-master": "1.0-dev"
         },
-        "satis":true
-    }
+        "satis": true
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://satis.lancaster-solutions.com"
+        }
+    ]
 }
