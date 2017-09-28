@@ -21,9 +21,9 @@ class Producer extends AbstractService
     /**
      * Enqueues payload inside desired queue
      *
-     * @param String  $queueAlias Name of queue to enqueue payload
-     * @param Mixed   $payload    Data to enqueue
-     * @param Integer $delay      Delay in seconds, default 0
+     * @param String $queueAlias Name of queue to enqueue payload
+     * @param Mixed  $payload    Data to enqueue
+     * @param int    $delay      Delay in seconds, default 0
      *
      * @return Producer self Object
      *
@@ -31,18 +31,15 @@ class Producer extends AbstractService
      */
     public function produce($queueAlias, $payload, $delay = 0)
     {
-        $queue = $this->queueAliasResolver->getQueue($queueAlias);
+        $queue             = $this->queueAliasResolver->getQueue($queueAlias);
         $payloadSerialized = $this->serializer->apply($payload);
 
         $this->redis->zadd(
             $queue,
-            time() + $delay,
+            $delay > 0 ? time() + $delay : 0,
             $payloadSerialized
         );
 
-        /**
-         * Dispatching producer event...
-         */
         $producerEvent = new RSQueueProducerEvent($payload, $payloadSerialized, $queueAlias, $queue, $this->redis);
         $this->eventDispatcher->dispatch(RSQueueEvents::RSQUEUE_PRODUCER, $producerEvent);
 

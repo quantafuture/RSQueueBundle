@@ -8,6 +8,7 @@
 
 namespace Mmoreram\RSQueueBundle\Services\Abstracts;
 
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Redis as RedisClient;
 use Mmoreram\RSQueueBundle\Serializer\Interfaces\SerializerInterface;
@@ -28,7 +29,7 @@ class AbstractService
     protected $eventDispatcher;
 
     /**
-     * @var Predis\Client
+     * @var RedisClient
      *
      * Redis client used to interact with redis service
      */
@@ -50,7 +51,7 @@ class AbstractService
 
     /**
      * @param EventDispatcher     $eventDispatcher    EventDispatcher instance
-     * @param Predis\Client       $redis              Redis instance
+     * @param RedisClient         $redis              Redis instance
      * @param QueueAliasResolver  $queueAliasResolver Resolver for queue alias
      * @param SerializerInterface $serializer         Serializer instance
      *
