@@ -5,15 +5,16 @@ namespace Mmoreram\RSQueueBundle\Command;
 use Mmoreram\RSQueueBundle\Command\Abstracts\AbstractExtendedCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Process;
 
 /**
- * Class AddRestartFlagCommand
+ * Class StopWorkersCommand
  *
  * @package Mmoreram\RSQueueBundle\Command
  */
-class RestartConsumersCommand extends AbstractExtendedCommand
+class StopWorkersCommand extends AbstractExtendedCommand
 {
-    const RSQUEUE_WORKERS_RESTART_TIMESTAMP_PREFIX = 'rsqueue_workers_restart_timestamp_';
+    const RSQUEUE_CONSUMER_PIDS_KEY = 'rsqueue_consumer_pids_key';
 
     /**
      * @var \Redis
@@ -27,9 +28,8 @@ class RestartConsumersCommand extends AbstractExtendedCommand
 
     /**
      * @param \Redis $redis
-     * @param string $namespace
      */
-    public function __construct(\Redis $redis, string $namespace)
+    public function __construct(\Redis $redis, $namespace)
     {
         $this->redis = $redis;
         $this->namespace = $namespace;
@@ -51,8 +51,8 @@ class RestartConsumersCommand extends AbstractExtendedCommand
     protected function configure()
     {
         $this
-            ->setName('rsqueue:restart-consumers')
-            ->setDescription('Add flag with timestamp for restart workers to redis.');
+            ->setName('rsqueue:consumer-pids-command')
+            ->setDescription('Get consumer pids.');
 
         parent::configure();
     }
@@ -61,11 +61,18 @@ class RestartConsumersCommand extends AbstractExtendedCommand
      * @param InputInterface $input
      * @param OutputInterface $output
      *
-     * @return void;
+     * @return void
      */
     protected function executeCommand(InputInterface $input, OutputInterface $output)
     {
-        $this->redis->set(self::RSQUEUE_WORKERS_RESTART_TIMESTAMP_PREFIX . $this->namespace, time());
+        $pids = $this->redis->keys(self::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$this->namespace.'_*');
+
+        foreach ($pids as $pid) {
+            posix_kill($pid, SIGTERM);
+        }
+
+        $waitProcess = new Process(sprintf('wait %s', implode(' ', $pids)));
+        $waitProcess->run();
 
         return;
     }

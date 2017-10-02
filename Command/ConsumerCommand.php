@@ -147,8 +147,6 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
         $lockHandler = $this->getContainer()->get('rs_queue.lock_handler');
         /** @var \Redis $redis */
         $redis = $this->getContainer()->get('rs_queue.redis');
-        /** @var string $consumerStopKey */
-        $consumerStopKey = $this->getContainer()->getParameter('rs_queue.consumer_stop_key');
 
         $lockFile = $input->getOption('lockFile');
         $iterations = (int) $input->getOption('iterations');
@@ -170,13 +168,11 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
             shuffle($queuesAlias);
         }
 
+        $namespace = $this->getContainer()->getParameter('rs_queue.consumer_stop_key');
+        $redis->set(ConsumerPidsCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid(), getmypid());
+
         try {
             while (true) {
-                $restartTime = $redis->get(RestartConsumersCommand::RSQUEUE_WORKERS_RESTART_TIMESTAMP_PREFIX . $consumerStopKey);
-                if ($restartTime !== false && $now < $restartTime) {
-                    $this->stopExecute();
-                }
-
                 pcntl_signal_dispatch();
 
                 if ($this->breakExecute) {
@@ -209,6 +205,8 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
                 sleep($sleep);
             }
         } finally {
+            $redis->del(ConsumerPidsCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid());
+
             if (!is_null($lockFile)) {
                 $lockHandler->unlock($lockFile);
             }
