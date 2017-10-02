@@ -8,11 +8,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
 /**
- * Class StopWorkersCommand
+ * Class RestartConsumersCommand
  *
  * @package Mmoreram\RSQueueBundle\Command
  */
-class StopWorkersCommand extends AbstractExtendedCommand
+class RestartConsumersCommand extends AbstractExtendedCommand
 {
     const RSQUEUE_CONSUMER_PIDS_KEY = 'rsqueue_consumer_pids_key';
 
@@ -51,8 +51,8 @@ class StopWorkersCommand extends AbstractExtendedCommand
     protected function configure()
     {
         $this
-            ->setName('rsqueue:consumer-pids-command')
-            ->setDescription('Get consumer pids.');
+            ->setName('rsqueue:restart-consumers')
+            ->setDescription('Restart consumers.');
 
         parent::configure();
     }
