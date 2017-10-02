@@ -169,7 +169,7 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
         }
 
         $namespace = $this->getContainer()->getParameter('rs_queue.consumer_stop_key');
-        $redis->set(ConsumerPidsCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid(), getmypid());
+        $redis->set(RestartConsumersCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid(), getmypid());
 
         try {
             while (true) {
@@ -205,7 +205,7 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
                 sleep($sleep);
             }
         } finally {
-            $redis->del(ConsumerPidsCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid());
+            $redis->del(RestartConsumersCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid());
 
             if (!is_null($lockFile)) {
                 $lockHandler->unlock($lockFile);
