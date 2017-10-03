@@ -153,6 +153,7 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
         $timeout = (int) $input->getOption('timeout');
         $workTime = (int) $input->getOption('workTime');
         $sleep = (int) $input->getOption('sleep');
+        $restartKey = RestartConsumersCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid();
 
         if (!is_null($lockFile)) {
             if (!$lockHandler->lock($lockFile)) {
@@ -169,10 +170,14 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
         }
 
         $namespace = $this->getContainer()->getParameter('rs_queue.consumer_stop_key');
-        $redis->set(RestartConsumersCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid(), getmypid());
+        $redis->set($restartKey, 0);
 
         try {
             while (true) {
+                if ($redis->get($restartKey) == 1) {
+                    $this->stopExecute();
+                }
+
                 pcntl_signal_dispatch();
 
                 if ($this->breakExecute) {
@@ -205,7 +210,7 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
                 sleep($sleep);
             }
         } finally {
-            $redis->del(RestartConsumersCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid());
+            $redis->del($restartKey);
 
             if (!is_null($lockFile)) {
                 $lockHandler->unlock($lockFile);

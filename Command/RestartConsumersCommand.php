@@ -66,16 +66,16 @@ class RestartConsumersCommand extends AbstractExtendedCommand
     protected function executeCommand(InputInterface $input, OutputInterface $output)
     {
         $keys = $this->redis->keys(self::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$this->namespace.'_*');
-        $pids = [];
 
         foreach ($keys as $key) {
-            $pid = intval($this->redis->get($key));
-            posix_kill($pid, SIGTERM);
-            $pids[] = $pid;
+            $this->redis->set($key, 1);
         }
 
-        $waitProcess = new Process(sprintf('wait %s', implode(' ', $pids)));
-        $waitProcess->run();
+        foreach ($keys as $key) {
+            while ($this->redis->exists($key)) {
+                sleep(1);
+            }
+        }
 
         return;
     }
