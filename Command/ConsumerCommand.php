@@ -175,7 +175,7 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
 
         try {
             while (true) {
-                if ($redis->get($restartKey) == 1) {
+                if (intval($redis->get($restartKey))  > 0) {
                     $this->stopExecute();
                 }
 

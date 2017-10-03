@@ -15,6 +15,7 @@ use Symfony\Component\Process\Process;
 class RestartConsumersCommand extends AbstractExtendedCommand
 {
     const RSQUEUE_CONSUMER_PIDS_KEY = 'rsqueue_consumer_pids_key';
+    const STOP_TRY_TIMEOUT = 20;
 
     /**
      * @var \Redis
@@ -72,8 +73,14 @@ class RestartConsumersCommand extends AbstractExtendedCommand
         }
 
         foreach ($keys as $key) {
-            while ($this->redis->exists($key)) {
+            $time = self::STOP_TRY_TIMEOUT;
+            while ($this->redis->exists($key) && $time > 0) {
                 sleep(1);
+                $time -= 1;
+            }
+
+            if ($this->redis->exists($key)) {
+                $this->redis->del($key);
             }
         }
 
