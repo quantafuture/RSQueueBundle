@@ -40,13 +40,9 @@
     "extra": {
         "branch-alias": {
             "dev-master": "1.0-dev"
-        },
-        "satis": true
+        }
     },
     "repositories": [
-        {
-            "type": "composer",
-            "url": "https://satis.lancaster-solutions.com"
-        }
+        {"type": "composer", "url": "https://repo.packagist.com/lancastersolutions/"}
     ]
 }
