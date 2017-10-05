@@ -64,7 +64,7 @@ services:
     rs_queue.lock_handler:
         class: Mmoreram\RSQueueBundle\Services\LockHandler
 
-    rs_queue.command.add_restart_flag:
+    rs_queue.command.restart_consumers_command:
           class: Mmoreram\RSQueueBundle\Command\RestartConsumersCommand
           tags:
               - {name: console.command}
