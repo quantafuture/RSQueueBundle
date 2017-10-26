@@ -8,6 +8,7 @@
 
 namespace Mmoreram\RSQueueBundle\Command;
 
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Mmoreram\RSQueueBundle\Model\JobData;
 use Mmoreram\RSQueueBundle\Services\Consumer;
 use Mmoreram\RSQueueBundle\Services\LockHandler;
@@ -190,6 +191,8 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
                 if ($job instanceof JobData) {
                     $method = $this->methods[$job->getQueue()];
 
+                    $this->refreshConnections();
+
                     /**
                      * All custom methods must have these parameters
                      *
@@ -215,6 +218,30 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
 
             if (!is_null($lockFile)) {
                 $lockHandler->unlock($lockFile);
+            }
+        }
+    }
+
+    /**
+     * Refresh connections and related object states.
+     */
+    protected function refreshConnections()
+    {
+        if ($this->getContainer()->has('doctrine')) {
+            /** @var ManagerRegistry $managerRegistry */
+            $managerRegistry = $this->getContainer()->get('doctrine');
+
+            $connections = $managerRegistry->getConnections();
+            foreach ($connections as $connection) {
+                if (!$connection->ping()) {
+                    $connection->close();
+                    $connection->connect();
+                }
+            }
+
+            $managers = $managerRegistry->getManagers();
+            foreach ($managers as $managerName) {
+                $managerRegistry->resetManager($managerName);
             }
         }
     }
