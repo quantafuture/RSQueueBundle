@@ -240,8 +240,8 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
             }
 
             $managers = $managerRegistry->getManagers();
-            foreach ($managers as $managerName) {
-                $managerRegistry->resetManager($managerName);
+            foreach ($managers as $name => $manager) {
+                $managerRegistry->resetManager($name);
             }
         }
     }
