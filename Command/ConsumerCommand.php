@@ -11,7 +11,6 @@ namespace Mmoreram\RSQueueBundle\Command;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Mmoreram\RSQueueBundle\Model\JobData;
 use Mmoreram\RSQueueBundle\Services\Consumer;
-use Mmoreram\RSQueueBundle\Services\LockHandler;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -114,12 +113,6 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
                 If 0, workTime is disabled.',
                 0
             )
-            ->addOption(
-                'lockFile',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Lock file.'
-            )
         ;
     }
 
@@ -144,12 +137,9 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
 
         /** @var Consumer $consumer */
         $consumer = $this->getContainer()->get('rsqueue.consumer');
-        /** @var LockHandler $lockHandler */
-        $lockHandler = $this->getContainer()->get('rs_queue.lock_handler');
         /** @var \Redis $redis */
         $redis = $this->getContainer()->get('rs_queue.redis');
 
-        $lockFile = $input->getOption('lockFile');
         $iterations = (int) $input->getOption('iterations');
         $timeout = (int) $input->getOption('timeout');
         $workTime = (int) $input->getOption('workTime');
@@ -157,12 +147,6 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
 
         $namespace = $this->getContainer()->getParameter('rs_queue.consumer_stop_key');
         $restartKey = RestartConsumersCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid();
-
-        if (!is_null($lockFile)) {
-            if (!$lockHandler->lock($lockFile)) {
-                return 0;
-            }
-        }
 
         $iterationsDone = 0;
         $queuesAlias = array_keys($this->methods);
@@ -215,10 +199,6 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
             }
         } finally {
             $redis->del($restartKey);
-
-            if (!is_null($lockFile)) {
-                $lockHandler->unlock($lockFile);
-            }
         }
     }
 
