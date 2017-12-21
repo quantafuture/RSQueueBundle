@@ -41,7 +41,11 @@ class RSQueueExtensionTest extends \PHPUnit_Framework_TestCase
     }
 
     public function testExtension() {
-        $config = array();
+        $config = [
+            'rs_queue' => [
+                'consumer_stop_key' => 'test',
+            ]
+        ];
         $this->extension->load($config, $this->container);
     }
 }

@@ -65,7 +65,6 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
      * Configure command
      *
      * Some options are included
-     * * timeout ( default: 0)
      * * iterations ( default: 0)
      * * sleep ( default: 0)
      *
@@ -76,16 +75,6 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
     protected function configure()
     {
         $this
-            ->addOption(
-                'timeout',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Consumer timeout.
-                If 0, no timeout is set.
-                Otherwise consumer will lose conection after timeout if queue is empty.
-                By default, 1',
-                1
-            )
             ->addOption(
                 'iterations',
                 null,
@@ -104,6 +93,13 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
                 If 0, no time will be waitted between them.
                 Otherwise, php will sleep X seconds each iteration.
                 By default, 0',
+                0
+            )
+            ->addOption(
+                'usleep',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Same as timeout but in milliseconds. Values sum together.',
                 0
             )
             ->addOption(
@@ -151,9 +147,9 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
 
         $lockFile = $input->getOption('lockFile');
         $iterations = (int) $input->getOption('iterations');
-        $timeout = (int) $input->getOption('timeout');
         $workTime = (int) $input->getOption('workTime');
         $sleep = (int) $input->getOption('sleep');
+        $usleep = (int) $input->getOption('usleep');
 
         $namespace = $this->getContainer()->getParameter('rs_queue.consumer_stop_key');
         $restartKey = RestartConsumersCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid();
@@ -176,42 +172,45 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
 
         try {
             while (true) {
-                if (intval($redis->get($restartKey))  > 0) {
-                    $this->stopExecute();
+                // Process jobs by batches.
+                for ($i = 0; $i < 1000; ++$i) {
+                    if (intval($redis->get($restartKey)) > 0) {
+                        $this->stopExecute();
+                    }
+
+                    pcntl_signal_dispatch();
+
+                    if ($this->breakExecute) {
+                        break 2;
+                    }
+
+                    $job = $consumer->consume($queuesAlias);
+
+                    if ($job instanceof JobData) {
+                        $method = $this->methods[$job->getQueue()];
+
+                        $this->refreshConnections();
+
+                        /**
+                         * All custom methods must have these parameters
+                         *
+                         * InputInterface  $input   An InputInterface instance
+                         * OutputInterface $output  An OutputInterface instance
+                         * Mixed           $payload Payload
+                         */
+                        $this->$method($input, $output, $job->getPayload());
+                    }
+
+                    if (($iterations > 0) && (++$iterationsDone >= $iterations)) {
+                        break 2;
+                    }
+
+                    if ($workTime > 0 && $now + $workTime <= time()) {
+                        break 2;
+                    }
                 }
 
-                pcntl_signal_dispatch();
-
-                if ($this->breakExecute) {
-                    break;
-                }
-
-                $job = $consumer->consume($queuesAlias, $timeout);
-
-                if ($job instanceof JobData) {
-                    $method = $this->methods[$job->getQueue()];
-
-                    $this->refreshConnections();
-
-                    /**
-                     * All custom methods must have these parameters
-                     *
-                     * InputInterface  $input   An InputInterface instance
-                     * OutputInterface $output  An OutputInterface instance
-                     * Mixed           $payload Payload
-                     */
-                    $this->$method($input, $output, $job->getPayload());
-                }
-
-                if (($iterations > 0) && (++$iterationsDone >= $iterations)) {
-                    break;
-                }
-
-                if ($workTime > 0 && $now + $workTime <= time()) {
-                    break;
-                }
-
-                sleep($sleep);
+                usleep($sleep * 1000000 + $usleep);
             }
         } finally {
             $redis->del($restartKey);
