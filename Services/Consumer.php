@@ -34,7 +34,7 @@ class Consumer extends AbstractService
      *
      * @param Mixed $queueAlias Alias of queue to consume from ( Can be an array of alias )
      *
-     * @return array
+     * @return AbstractJobData
      *
      * @throws InvalidAliasException If any alias is not defined
      */
@@ -43,36 +43,28 @@ class Consumer extends AbstractService
         $queues = is_array($queueAlias)
             ? $this->queueAliasResolver->getQueues($queueAlias)
             : [$this->queueAliasResolver->getQueue($queueAlias)];
-
-        $payloads = [];
+        shuffle($queues);
 
         foreach ($queues as $queue) {
-            $jobs = $this->redis->zrangebyscore($queue, 0, time(), ['limit' => [0, 1000]]);
+            $jobs = $this->redis->zrangebyscore($queue, 0, time(), ['limit' => [0, 1]]);
 
-            if (!is_array($jobs)) {
-                continue;
+            if (!is_array($jobs) || !count($jobs)) {
+                return new NoJobData();
             }
 
-            foreach ($jobs as $job) {
-                $this->redis->zRem($queue, $job);
+            $job = reset($jobs);
+            $this->redis->zRem($queue, $job);
 
-                $payload                    = $this->serializer->revert($job);
-                $givenQueueAlias            = $this->queueAliasResolver->getQueueAlias($queue);
+            $payload         = $this->serializer->revert($job);
+            $givenQueueAlias = $this->queueAliasResolver->getQueueAlias($queue);
 
-                if (!isset($payloads[$givenQueueAlias])) {
-                    $payloads[$givenQueueAlias] = [];
-                }
+            /**
+             * Dispatching consumer event...
+             */
+            $consumerEvent = new RSQueueConsumerEvent($payload, $job, $givenQueueAlias, $queue, $this->redis);
+            $this->eventDispatcher->dispatch(RSQueueEvents::RSQUEUE_CONSUMER, $consumerEvent);
 
-                $payloads[$givenQueueAlias][] = $payload;
-
-                /**
-                 * Dispatching consumer event...
-                 */
-                $consumerEvent = new RSQueueConsumerEvent($payload, $job, $givenQueueAlias, $queue, $this->redis);
-                $this->eventDispatcher->dispatch(RSQueueEvents::RSQUEUE_CONSUMER, $consumerEvent);
-            }
+            return new JobData($givenQueueAlias, $payload);
         }
-
-        return $payloads;
     }
 }

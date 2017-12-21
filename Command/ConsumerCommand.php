@@ -172,21 +172,22 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
 
         try {
             while (true) {
-                if (intval($redis->get($restartKey))  > 0) {
-                    $this->stopExecute();
-                }
+                // Process jobs by batches.
+                for ($i = 0; $i < 1000; ++$i) {
+                    if (intval($redis->get($restartKey)) > 0) {
+                        $this->stopExecute();
+                    }
 
-                pcntl_signal_dispatch();
+                    pcntl_signal_dispatch();
 
-                if ($this->breakExecute) {
-                    break;
-                }
+                    if ($this->breakExecute) {
+                        break 2;
+                    }
 
-                $jobMap = $consumer->consume($queuesAlias);
+                    $job = $consumer->consume($queuesAlias);
 
-                foreach ($jobMap as $queue => $jobs) {
-                    foreach ($jobs as $job) {
-                        $method = $this->methods[$queue];
+                    if ($job instanceof JobData) {
+                        $method = $this->methods[$job->getQueue()];
 
                         $this->refreshConnections();
 
@@ -197,16 +198,16 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
                          * OutputInterface $output  An OutputInterface instance
                          * Mixed           $payload Payload
                          */
-                        $this->$method($input, $output, $job);
+                        $this->$method($input, $output, $job->getPayload());
                     }
-                }
 
-                if (($iterations > 0) && (++$iterationsDone >= $iterations)) {
-                    break;
-                }
+                    if (($iterations > 0) && (++$iterationsDone >= $iterations)) {
+                        break 2;
+                    }
 
-                if ($workTime > 0 && $now + $workTime <= time()) {
-                    break;
+                    if ($workTime > 0 && $now + $workTime <= time()) {
+                        break 2;
+                    }
                 }
 
                 usleep($sleep * 1000000 + $usleep);
