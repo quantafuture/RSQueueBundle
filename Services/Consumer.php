@@ -45,26 +45,24 @@ class Consumer extends AbstractService
             ? $this->queueAliasResolver->getQueues($queueAlias)
             : $this->queueAliasResolver->getQueue($queueAlias);
 
-        $payloadArray = [];
         $payloadSerialized = null;
         $givenQueue = null;
         $startAt = time();
 
         while ($payloadSerialized === null || $givenQueue === null) {
             foreach ($queues as $queue) {
-                $jobs = $this->redis->zrangebyscore($queue, 0, time(), ['limit' => [0, 1]]);
-                $payloadArray[$queue] = $jobs;
+                $jobs = $this->redis->zrangebyscore($queue, 0, time(), ['limit' => [0, 1000]]);
 
-                if (count($jobs) > 0) {
-                    $this->redis->zRem($queue, $jobs[0]);
+                foreach ($jobs as $job) {
+                    $this->redis->zRem($queue, $job);
 
-                    $payload         = $this->serializer->revert($jobs[0]);
+                    $payload         = $this->serializer->revert($job);
                     $givenQueueAlias = $this->queueAliasResolver->getQueueAlias($queue);
 
                     /**
                      * Dispatching consumer event...
                      */
-                    $consumerEvent = new RSQueueConsumerEvent($payload, $jobs[0], $givenQueueAlias, $queue, $this->redis);
+                    $consumerEvent = new RSQueueConsumerEvent($payload, $job, $givenQueueAlias, $queue, $this->redis);
                     $this->eventDispatcher->dispatch(RSQueueEvents::RSQUEUE_CONSUMER, $consumerEvent);
 
                     return new JobData($givenQueueAlias, $payload);
