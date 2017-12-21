@@ -72,6 +72,6 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $consumer = new Consumer($eventDispatcher, $redis, $queueAliasResolver, $serializer);
         $jobs = $consumer->consume($queueAlias, $timeout);
 
-        $this->assertEquals(['alias' => ['engonga']], $jobs);
+        $this->assertEquals(['alias' => [['engonga']]], $jobs);
     }
 }

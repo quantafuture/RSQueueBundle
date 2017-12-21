@@ -182,21 +182,23 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
                     break;
                 }
 
-                $jobs = $consumer->consume($queuesAlias);
+                $jobMap = $consumer->consume($queuesAlias);
 
-                foreach ($jobs as $queue => $job) {
-                    $method = $this->methods[$queue];
+                foreach ($jobMap as $queue => $jobs) {
+                    foreach ($jobs as $job) {
+                        $method = $this->methods[$queue];
 
-                    $this->refreshConnections();
+                        $this->refreshConnections();
 
-                    /**
-                     * All custom methods must have these parameters
-                     *
-                     * InputInterface  $input   An InputInterface instance
-                     * OutputInterface $output  An OutputInterface instance
-                     * Mixed           $payload Payload
-                     */
-                    $this->$method($input, $output, $job);
+                        /**
+                         * All custom methods must have these parameters
+                         *
+                         * InputInterface  $input   An InputInterface instance
+                         * OutputInterface $output  An OutputInterface instance
+                         * Mixed           $payload Payload
+                         */
+                        $this->$method($input, $output, $job);
+                    }
                 }
 
                 if (($iterations > 0) && (++$iterationsDone >= $iterations)) {

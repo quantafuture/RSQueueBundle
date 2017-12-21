@@ -58,7 +58,12 @@ class Consumer extends AbstractService
 
                 $payload                    = $this->serializer->revert($job);
                 $givenQueueAlias            = $this->queueAliasResolver->getQueueAlias($queue);
-                $payloads[$givenQueueAlias] = $payload;
+
+                if (!isset($payloads[$givenQueueAlias])) {
+                    $payloads[$givenQueueAlias] = [];
+                }
+
+                $payloads[$givenQueueAlias][] = $payload;
 
                 /**
                  * Dispatching consumer event...
