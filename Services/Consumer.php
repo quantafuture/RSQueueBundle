@@ -32,50 +32,42 @@ class Consumer extends AbstractService
      *
      * Also, new Consumer event is triggered everytime a new element is popped
      *
-     * @param Mixed   $queueAlias Alias of queue to consume from ( Can be an array of alias )
-     * @param Integer $timeout    Timeout. By default, 0
+     * @param Mixed $queueAlias Alias of queue to consume from ( Can be an array of alias )
      *
-     * @return AbstractJobData
+     * @return array
      *
      * @throws InvalidAliasException If any alias is not defined
      */
-    public function consume($queueAlias, $timeout = 0)
+    public function consume($queueAlias)
     {
         $queues = is_array($queueAlias)
             ? $this->queueAliasResolver->getQueues($queueAlias)
-            : $this->queueAliasResolver->getQueue($queueAlias);
+            : [$this->queueAliasResolver->getQueue($queueAlias)];
 
-        $payloadSerialized = null;
-        $givenQueue = null;
-        $startAt = time();
+        $payloads = [];
 
-        while ($payloadSerialized === null || $givenQueue === null) {
-            foreach ($queues as $queue) {
-                $jobs = $this->redis->zrangebyscore($queue, 0, time(), ['limit' => [0, 1000]]);
+        foreach ($queues as $queue) {
+            $jobs = $this->redis->zrangebyscore($queue, 0, time(), ['limit' => [0, 1000]]);
 
-                foreach ($jobs as $job) {
-                    $this->redis->zRem($queue, $job);
-
-                    $payload         = $this->serializer->revert($job);
-                    $givenQueueAlias = $this->queueAliasResolver->getQueueAlias($queue);
-
-                    /**
-                     * Dispatching consumer event...
-                     */
-                    $consumerEvent = new RSQueueConsumerEvent($payload, $job, $givenQueueAlias, $queue, $this->redis);
-                    $this->eventDispatcher->dispatch(RSQueueEvents::RSQUEUE_CONSUMER, $consumerEvent);
-
-                    return new JobData($givenQueueAlias, $payload);
-                }
+            if (!is_array($jobs)) {
+                continue;
             }
 
-            if ($timeout != 0 && $startAt + $timeout < time()) {
-                return new NoJobData();
-            }
+            foreach ($jobs as $job) {
+                $this->redis->zRem($queue, $job);
 
-            sleep(1);
+                $payload                    = $this->serializer->revert($job);
+                $givenQueueAlias            = $this->queueAliasResolver->getQueueAlias($queue);
+                $payloads[$givenQueueAlias] = $payload;
+
+                /**
+                 * Dispatching consumer event...
+                 */
+                $consumerEvent = new RSQueueConsumerEvent($payload, $job, $givenQueueAlias, $queue, $this->redis);
+                $this->eventDispatcher->dispatch(RSQueueEvents::RSQUEUE_CONSUMER, $consumerEvent);
+            }
         }
 
-        return new NoJobData();
+        return $payloads;
     }
 }

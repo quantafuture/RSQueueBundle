@@ -32,8 +32,8 @@ class RSQueueConsumerListenerTest extends \PHPUnit_Framework_TestCase
 
         $managerRegistry
             ->expects($this->once())
-            ->method('getManager')
-            ->willReturn($objectManager);
+            ->method('getManagers')
+            ->willReturn([$objectManager]);
 
         $listener = new ConsumerListener($managerRegistry);
 

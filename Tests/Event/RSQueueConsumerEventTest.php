@@ -67,7 +67,7 @@ class RSQueueConsumerEventTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
 
-        $this->redis = $this->getMock('\Redis');
+        $this->redis = $this->createMock('\Redis');
         $this->rsqueueConsumerEvent = new RSQueueConsumerEvent($this->payload, $this->payloadSerialized, $this->queueAlias, $this->queueName, $this->redis);
     }
 

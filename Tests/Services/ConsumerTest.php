@@ -27,16 +27,16 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $payload = array('engonga');
 
         $redis = $this
-            ->getMock('\Redis', array('blPop'));
+            ->createMock('\Redis');
 
         $redis
             ->expects($this->once())
-            ->method('blPop')
+            ->method('zrangebyscore')
             ->with($this->equalTo($queue), $this->equalTo($timeout))
-            ->will($this->returnValue(array($queue, json_encode($payload))));
+            ->will($this->returnValue([json_encode($payload)]));
 
         $serializer = $this
-            ->getMock('Mmoreram\RSQueueBundle\Serializer\JsonSerializer', array('revert'));
+            ->createMock('Mmoreram\RSQueueBundle\Serializer\JsonSerializer');
 
         $serializer
             ->expects($this->once())
@@ -63,16 +63,15 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue($queueAlias));
 
         $eventDispatcher = $this
-            ->getMock('Symfony\Component\EventDispatcher\EventDispatcher', array('dispatch'));
+            ->createMock('Symfony\Component\EventDispatcher\EventDispatcher', array('dispatch'));
 
         $eventDispatcher
             ->expects($this->once())
             ->method('dispatch');
 
         $consumer = new Consumer($eventDispatcher, $redis, $queueAliasResolver, $serializer);
-        list($givenQueueAlias, $givenPayload) = $consumer->consume($queueAlias, $timeout);
+        $jobs = $consumer->consume($queueAlias, $timeout);
 
-        $this->assertEquals($queueAlias, $givenQueueAlias);
-        $this->assertEquals($payload, $givenPayload);
+        $this->assertEquals(['alias' => ['engonga']], $jobs);
     }
 }
