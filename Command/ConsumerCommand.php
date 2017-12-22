@@ -152,7 +152,7 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
         $usleep = (int) $input->getOption('usleep');
 
         $namespace = $this->getContainer()->getParameter('rs_queue.consumer_stop_key');
-        $restartKey = RestartConsumersCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid();
+        $restartKey = RestartConsumersCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid().'_'.time();
 
         if (!is_null($lockFile)) {
             if (!$lockHandler->lock($lockFile)) {
