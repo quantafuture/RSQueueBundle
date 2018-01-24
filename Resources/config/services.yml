@@ -21,6 +21,7 @@ services:
 
     rs_queue.redis:
         class: Redis
+        public: true
 
     rs_queue.resolver.queuealias:
         class: '%rs_queue.resolver.queuealias.class%'
@@ -37,6 +38,7 @@ services:
 
     rs_queue.consumer:
         class: Mmoreram\RSQueueBundle\Services\Consumer
+        public: true
         parent: rs_queue.service
 
     rs_queue.producer:
@@ -63,6 +65,7 @@ services:
 
     rs_queue.lock_handler:
         class: Mmoreram\RSQueueBundle\Services\LockHandler
+        public: true
 
     rs_queue.command.restart_consumers_command:
           class: Mmoreram\RSQueueBundle\Command\RestartConsumersCommand
