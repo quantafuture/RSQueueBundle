@@ -152,7 +152,7 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
         $usleep = (int) $input->getOption('usleep');
 
         $namespace = $this->getContainer()->getParameter('rs_queue.consumer_stop_key');
-        $restartKey = RestartConsumersCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid();
+        $restartKey = RestartConsumersCommand::RSQUEUE_CONSUMER_PIDS_KEY.'_'.$namespace.'_'.getmypid().'_'.time();
 
         if (!is_null($lockFile)) {
             if (!$lockHandler->lock($lockFile)) {
@@ -172,8 +172,8 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
 
         try {
             while (true) {
-                // Process jobs by batches.
-                for ($i = 0; $i < 1000; ++$i) {
+                // Process jobs while they last
+                while (true) {
                     if (intval($redis->get($restartKey)) > 0) {
                         $this->stopExecute();
                     }
@@ -199,6 +199,8 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
                          * Mixed           $payload Payload
                          */
                         $this->$method($input, $output, $job->getPayload());
+                    } else {
+                        break;
                     }
 
                     if (($iterations > 0) && (++$iterationsDone >= $iterations)) {

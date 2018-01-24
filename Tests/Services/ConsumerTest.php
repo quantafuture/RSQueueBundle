@@ -8,6 +8,7 @@
 
 namespace Mmoreram\RSQueueBundle\Tests\Services;
 
+use Mmoreram\RSQueueBundle\Model\JobData;
 use Mmoreram\RSQueueBundle\Services\Consumer;
 
 /**
@@ -70,8 +71,8 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
             ->method('dispatch');
 
         $consumer = new Consumer($eventDispatcher, $redis, $queueAliasResolver, $serializer);
-        $jobs = $consumer->consume($queueAlias, $timeout);
+        $job = $consumer->consume($queueAlias, $timeout);
 
-        $this->assertEquals(['alias' => [['engonga']]], $jobs);
+        $this->assertInstanceOf(JobData::class, $job);
     }
 }
