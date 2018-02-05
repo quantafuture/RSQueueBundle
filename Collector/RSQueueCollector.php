@@ -31,13 +31,7 @@ class RSQueueCollector extends DataCollector
      */
     public function __construct()
     {
-        $this->total = 0;
-        $this->data = array(
-
-            'prod'  =>  array(),
-            'publ'  =>  array(),
-            'total' =>  0,
-        );
+        $this->reset();
     }
 
     /**
@@ -124,6 +118,19 @@ class RSQueueCollector extends DataCollector
     public function collect(Request $request, Response $response, \Exception $exception = null)
     {
 
+    }
+
+    /**
+     * Reset collector.
+     */
+    public function reset()
+    {
+        $this->total = 0;
+        $this->data = [
+            'prod' => [],
+            'publ' => [],
+            'total' => 0,
+        ];
     }
 
     /**
