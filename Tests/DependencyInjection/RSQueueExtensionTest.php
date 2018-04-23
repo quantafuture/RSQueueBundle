@@ -12,6 +12,7 @@
 namespace Mmoreram\RSQueueBundle\Tests\DependencyInjection;
 
 use Mmoreram\RSQueueBundle\DependencyInjection\RSQueueExtension;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
@@ -22,7 +23,7 @@ use Symfony\Component\DependencyInjection\Reference;
  *
  * @author Ener-Getick <egetick@gmail.com>
  */
-class RSQueueExtensionTest extends \PHPUnit_Framework_TestCase
+class RSQueueExtensionTest extends TestCase
 {
     /**
      * @var ContainerBuilder

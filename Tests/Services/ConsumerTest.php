@@ -10,11 +10,12 @@ namespace Mmoreram\RSQueueBundle\Tests\Services;
 
 use Mmoreram\RSQueueBundle\Model\JobData;
 use Mmoreram\RSQueueBundle\Services\Consumer;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests Consumer class
  */
-class ConsumerTest extends \PHPUnit_Framework_TestCase
+class ConsumerTest extends TestCase
 {
 
     /**

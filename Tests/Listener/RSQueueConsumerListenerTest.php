@@ -5,6 +5,7 @@ namespace Mmoreram\RSQueueBundle\Tests\Resolver;
 use Doctrine\Common\Persistence\ObjectManager;
 use Mmoreram\RSQueueBundle\Listeners\ConsumerListener;
 use Mmoreram\RSQueueBundle\Event\RSQueueConsumerEvent;
+use PHPUnit\Framework\TestCase;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 
 /**
@@ -12,7 +13,7 @@ use Symfony\Bridge\Doctrine\ManagerRegistry;
  *
  * @package Mmoreram\RSQueueBundle\Tests\Resolver
  */
-class RSQueueConsumerListenerTest extends \PHPUnit_Framework_TestCase
+class RSQueueConsumerListenerTest extends TestCase
 {
     public function testConsumerListener()
     {

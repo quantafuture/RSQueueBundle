@@ -9,11 +9,12 @@
 namespace Mmoreram\RSQueueBundle\Tests\Event;
 
 use Mmoreram\RSQueueBundle\Event\RSQueuePublisherEvent;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests RSChannelPublisherEvent class
  */
-class RSQueuePublisherEventTest extends \PHPUnit_Framework_TestCase
+class RSQueuePublisherEventTest extends TestCase
 {
 
     /**

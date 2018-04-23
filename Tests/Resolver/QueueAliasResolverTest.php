@@ -10,11 +10,12 @@ namespace Mmoreram\RSQueueBundle\Tests\Resolver;
 
 use Mmoreram\RSQueueBundle\Resolver\QueueAliasResolver;
 use Mmoreram\RSQueueBundle\Exception\InvalidAliasException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests QueueAliasResolver class
  */
-class QueueAliasResolverTest extends \PHPUnit_Framework_TestCase
+class QueueAliasResolverTest extends TestCase
 {
 
     /**
