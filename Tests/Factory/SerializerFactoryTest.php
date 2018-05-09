@@ -14,11 +14,12 @@ use Mmoreram\RSQueueBundle\Serializer\PHPSerializer;
 use Mmoreram\RSQueueBundle\Tests\Factory\Serializer\FooSerializer;
 use Mmoreram\RSQueueBundle\Exception\SerializerNotImplementsInterfaceException;
 use Mmoreram\RSQueueBundle\Exception\SerializerNotFoundException;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests SerializerFactory class
  */
-class SerializerFactoryTest extends \PHPUnit_Framework_TestCase
+class SerializerFactoryTest extends TestCase
 {
 
     /**

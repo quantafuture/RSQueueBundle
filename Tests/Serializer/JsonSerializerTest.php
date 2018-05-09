@@ -9,11 +9,12 @@
 namespace Mmoreram\RSQueueBundle\Tests\Serializer;
 
 use Mmoreram\RSQueueBundle\Serializer\JsonSerializer;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests JsonSerializer class
  */
-class JsonSerializerTest extends \PHPUnit_Framework_TestCase
+class JsonSerializerTest extends TestCase
 {
 
     /**

@@ -9,11 +9,12 @@
 namespace Mmoreram\RSQueueBundle\Tests\Event;
 
 use Mmoreram\RSQueueBundle\Event\RSQueueConsumerEvent;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests RSQueueConsumerEvent class
  */
-class RSQueueConsumerEventTest extends \PHPUnit_Framework_TestCase
+class RSQueueConsumerEventTest extends TestCase
 {
 
     /**
