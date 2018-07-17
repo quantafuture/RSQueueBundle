@@ -132,7 +132,7 @@ abstract class ConsumerCommand extends AbstractRSQueueCommand
         pcntl_signal(SIGINT, [$this, 'stopExecute']);
 
         /** @var Consumer $consumer */
-        $consumer = $this->getContainer()->get('rsqueue.consumer');
+        $consumer = $this->getContainer()->get('rs_queue.consumer');
         /** @var \Redis $redis */
         $redis      = $this->getContainer()->get('rs_queue.redis');
         $iterations = (int)$input->getOption('iterations');
