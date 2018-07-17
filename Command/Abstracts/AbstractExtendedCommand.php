@@ -21,18 +21,11 @@ abstract class AbstractExtendedCommand extends ContainerAwareCommand
     {
         $this
             ->addOption(
-                'lockFile',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Lock file.'
-            )
-            -> addOption(
                 'gracefulShutdown',
                 false,
                 InputOption::VALUE_OPTIONAL,
                 'Force graceful shutdown of command.'
-            )
-        ;
+            );
     }
 
     /**
@@ -43,29 +36,14 @@ abstract class AbstractExtendedCommand extends ContainerAwareCommand
      */
     final protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $lockFile = $input->getOption('lockFile');
         $graceful = $input->getOption('gracefulShutdown');
-
-        $lockHandler = $this->getContainer()->get('rs_queue.lock_handler');
-
-        if (!is_null($lockFile)) {
-            if (!$lockHandler->lock($lockFile)) {
-                return 0;
-            }
-        }
 
         if ($graceful) {
             pcntl_signal(SIGTERM, [$this, 'stopExecute']);
             pcntl_signal(SIGINT, [$this, 'stopExecute']);
         }
 
-        try {
-            $this->executeCommand($input, $output);
-        } finally {
-            if (!is_null($lockFile)) {
-                $lockHandler->unlock($lockFile);
-            }
-        }
+        $this->executeCommand($input, $output);
 
         return 0;
     }
